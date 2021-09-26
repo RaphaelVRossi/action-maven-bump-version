@@ -9,16 +9,23 @@ inputs:
     required: true
 
 outputs:
+  old-version:
+    description: 'old version'
+    value: ${{ steps.get-outputs-old.outputs.old-version }}
   version:
     description: 'new version'
     value: ${{ steps.get-outputs.outputs.version }}
   updated:
     description: 'if updated'
-    value: ${{ steps.get-outputs.outputs.version }} 
+    value: ${{ steps.get-outputs-updated.outputs.updated }} 
 
 runs:
   using: "composite"
   steps:
+    - name: Set output old-version
+      id: get-outputs-old
+      shell: bash
+      run: echo "::set-output name=old-version::$(${{github.action_path}}/get-version.sh)"
     - name: Bump Version
       env:
         TOKEN: ${{ inputs.github-token }}
@@ -28,6 +35,10 @@ runs:
       id: get-outputs
       shell: bash
       run: echo "::set-output name=version::$(${{github.action_path}}/get-version.sh)"
+    - name: Set outputs updated
+      id: get-outputs-updated
+      shell: bash
+      run: echo "::set-output name=updated::$(${{github.action_path}}/compare-version.sh ${{ steps.get-outputs-old.outputs.old-version }} ${{ steps.get-outputs.outputs.version }})"
     - name: Result
       shell: bash
       run: "echo 'Version is now ${{ steps.get-outputs.outputs.version }}'"
