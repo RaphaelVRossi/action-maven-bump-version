@@ -2,3 +2,32 @@ name: Action Maven Bump Version
 description: A simple GitHub Actions to bump the version of Maven projects
 
 author: Raphael Rossi
+
+inputs:
+  git-token:
+    description: 'Token'
+    required: true
+
+outputs:
+  version:
+    description: 'new version'
+    value: ${{ steps.get-outputs.outputs.version }}
+  updated:
+    description: 'if updated'
+    value: ${{ steps.get-outputs.outputs.version }} 
+
+runs:
+  using: "composite"
+  steps:
+    - name: Bump Version
+      env:
+        TOKEN: ${{ inputs.github-token }}
+      run: ${{github.action_path}}/version-bump.sh
+      shell: bash
+    - name: Set outputs
+      id: get-outputs
+      shell: bash
+      run: echo "::set-output name=version::$(${{github.action_path}}/get-version.sh)"
+    - name: Result
+      shell: bash
+      run: "echo 'Version is now ${{ steps.get-outputs.outputs.version }}'"
