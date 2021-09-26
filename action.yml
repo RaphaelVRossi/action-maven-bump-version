@@ -1,0 +1,4 @@
+name: Action Maven Bump Version
+description: A simple GitHub Actions to bump the version of Maven projects
+
+author: Raphael Rossi
